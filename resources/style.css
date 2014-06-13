@@ -1,6 +1,17 @@
 #chat-box {
-width: 95%;
-padding: 20px 20px 20px 25px;
-height: 500px;
-box-shadow: -1px 0px 4px rgba(50, 50, 50, 0.35);
+	width: 95%;
+	padding: 20px 20px 20px 25px;
+	height: 500px;
+	box-shadow: -1px 0px 4px rgba(50, 50, 50, 0.35);
+	overflow: auto;
 }
+
+.user-name {
+	font-weight: bold;
+	color: red;
+}
+
+.user-message {
+	margin-left: 10px;
+}
+
