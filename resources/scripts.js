@@ -4,7 +4,7 @@ var objDiv = document.getElementById("chat-box");
 function sendLogin() {
 	var user = {
 		name: document.getElementById('user-name').value,
-		pass: document.getElementById('user-pass').value
+		password: document.getElementById('user-pass').value
 	}
 
 	var req = new XMLHttpRequest()

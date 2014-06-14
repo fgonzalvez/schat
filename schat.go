@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
     "github.com/gorilla/sessions"
+   	"github.com/gorilla/context"
 )
 
 var store = sessions.NewCookieStore([]byte("something-very-secret"))
@@ -19,6 +20,7 @@ type message struct {
 
 type user struct {
 	Name string
+	Password string
 }
 
 var lastMessage message 
@@ -35,7 +37,21 @@ func renderLogin(w http.ResponseWriter, r *http.Request) {
 
 func loginUser(w http.ResponseWriter, r *http.Request) {
 	log.Println("ok")
-	http.Redirect(w,r,"index",http.StatusFound) 
+	respon := r.Body
+	if respon == nil {
+		w.WriteHeader(400)
+	} else {
+		decoder := json.NewDecoder(r.Body)
+		var u user
+		decoder.Decode(&u)
+
+	    session, _ := store.Get(r, u.Name + "-session")
+	    // Set some session values.
+	    session.Values["username"] = "bar"
+	    // Save it.
+	    session.Save(r, w)
+		http.Redirect(w,r,"index",http.StatusFound) 
+	}
 }
 
 func messagesSelecter(w http.ResponseWriter, r *http.Request) {
@@ -96,5 +112,5 @@ func main() {
 	http.HandleFunc("/messages", messagesSelecter)
 	http.HandleFunc("/getMessages", displayMessages)
 	http.HandleFunc("/login", loginUser)
-	http.ListenAndServeTLS(":8080", "cert.pem", "key.pem", nil)
+	http.ListenAndServeTLS(":8080", "cert.pem", "key.pem", context.ClearHandler(http.DefaultServeMux))
 }
