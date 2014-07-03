@@ -1,24 +1,19 @@
-<h1> - Simple chat - </h1>
+<h1 style="display:none"> - Simple chat - </h1>
+<img src="resources/logo.png"/>
 
-<hr>
 
 <div id='chat-box'>
 
 </div>
 
 <div id="write-area">
-	<textarea id="message-area">
+	<textarea id="message-area"  rows="4" cols="100">
 	</textarea>
-	<button id="send-button" onclick="javascript:sendMessage()"> Enviar </button>
-	<button id="get-button" onclick="javascript:getMessages()"> Get </button>
+	<button id="send-button" onclick="javascript:sendMessage()"> <span>Enviar</span> </button>
 </div>
 
-<hr>
-
-<h1>FUUter </h1>
 
 <link rel="stylesheet" href="resources/style.css" type="text/css">
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script src="resources/scripts.js"> </script>
 <script src="resources/listener.js"> </script>
 

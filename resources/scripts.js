@@ -1,6 +1,5 @@
 var objDiv = document.getElementById("chat-box");
 
-
 function sendLogin() {
 	var user = {
 		name: document.getElementById('user-name').value,
@@ -15,7 +14,7 @@ function sendLogin() {
 		{
 			if(req.status == 400)
 			{
-				alert("errroooor")
+				alert("User or password incorrect")
 			}
 			else if(req.status == 200)
 			{
@@ -23,11 +22,9 @@ function sendLogin() {
 
 				localStorage['username'] = user.name
 			}		
-			console.log(JSON.parse(req.responseText))			
 		}
 	}
 	req.send(JSON.stringify(user))
-	console.log(JSON.stringify(user))
 }
 
 function getMessages() {
@@ -47,14 +44,11 @@ function getMessages() {
 	}
 	else if(req.status == 200)
 	{
-		console.log(JSON.parse(req.responseText))
 		pack = JSON.parse(req.responseText)
-		console.log(pack)
-		document.getElementById('chat-box').innerHTML += "<p class='user-name'>" + pack.Name + "</p>"
-		document.getElementById('chat-box').innerHTML += "<p class='user-message'>" + pack.Body + "</p>"
+		document.getElementById('chat-box').innerHTML += "<div class='message-row'> <p class='user-name'>" + pack.Name + "</p>" +
+		 "<p class='user-message'>" + pack.Body + "</p> </div>"
 	}		
 
-	console.log(JSON.stringify(user))
 	objDiv.scrollTop = objDiv.scrollHeight;	
 }
 
@@ -76,16 +70,12 @@ function sendMessage() {
 			}
 			else if(req.status == 200)
 			{
-				console.log(JSON.parse(req.responseText))
 				pack = JSON.parse(req.responseText)
-				console.log(pack)
-				document.getElementById('chat-box').innerHTML += "<p class='user-name'>" + pack.Name + "</p>"
-				document.getElementById('chat-box').innerHTML += "<p class='user-message'>" + pack.Body + "</p>"
+				document.getElementById('chat-box').innerHTML += "<div class='message-row'> <p class='user-name'>" + pack.Name + "</p>" + 
+				 "<p class='user-message'>" + pack.Body + "</p> </div>"
 			}		
-			console.log(JSON.parse(req.responseText))		
 			objDiv.scrollTop = objDiv.scrollHeight;	
 		}
 	}
 	req.send(JSON.stringify(jeison))
-	console.log(JSON.stringify(jeison))
 }

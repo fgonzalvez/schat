@@ -23,11 +23,49 @@ type user struct {
 	Password string
 }
 
+var user1 user
+var user2 user
+
 var lastMessage message 
 
-func render(w http.ResponseWriter, r *http.Request) {
-	t, _ := template.ParseFiles("index.html")
-	t.Execute(w, nil)
+func checkLogin(u user) (bool){
+	var ret bool 
+	ret = false
+	if u.Name == user1.Name {
+		if u.Password == user1.Password {
+			ret = true
+		} else {
+			ret = false
+		}
+	} else if u.Name == user2.Name {
+		if u.Password == user2.Password {
+			ret = true
+		} else {
+			ret = false
+		}
+	}
+	return ret
+}
+
+func checkSession(r *http.Request) (bool){
+	session, _ := store.Get(r, "loginSession")
+    if val, ok := session.Values["username"].(string); ok {
+        switch val {
+        case "": return false
+        default: return true
+        }
+    } else {
+        return false
+    }
+}
+
+func renderIndex(w http.ResponseWriter, r *http.Request) {
+	if checkSession(r) {
+		t, _ := template.ParseFiles("index.html")
+		t.Execute(w, nil)
+	} else {
+		renderLogin(w,r)		
+	}
 }
 
 func renderLogin(w http.ResponseWriter, r *http.Request) {
@@ -36,7 +74,6 @@ func renderLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func loginUser(w http.ResponseWriter, r *http.Request) {
-	log.Println("ok")
 	respon := r.Body
 	if respon == nil {
 		w.WriteHeader(400)
@@ -45,22 +82,18 @@ func loginUser(w http.ResponseWriter, r *http.Request) {
 		var u user
 		decoder.Decode(&u)
 
-	    session, _ := store.Get(r, u.Name + "-session")
-	    // Set some session values.
-	    session.Values["username"] = "bar"
-	    // Save it.
-	    session.Save(r, w)
-		http.Redirect(w,r,"index",http.StatusFound) 
-	}
-}
-
-func messagesSelecter(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
-		displayMessages(w, r)
-	} else if r.Method == "POST" {
-		saveMessage(w, r)
-	} else {
-		return
+		if checkLogin(u) {
+			log.Println("buen login")
+			session, _ := store.Get(r, "loginSession")
+		    // Set some session values.
+		    session.Values["username"] = u.Name
+		    // Save it.
+		    session.Save(r, w)
+			http.Redirect(w,r,"index",http.StatusFound) 
+		} else {
+			w.WriteHeader(400)
+			fmt.Fprint(w, "User or password incorrect")
+		}
 	}
 }
 
@@ -73,13 +106,18 @@ func saveMessage(w http.ResponseWriter, r *http.Request) {
 		var m message
 		decoder.Decode(&m)
 
-		lastMessage.Name = m.Name
-		lastMessage.Body = m.Body
-		lastMessage.Readed = false
+		if checkSession(r) {
+			lastMessage.Name = m.Name
+			lastMessage.Body = m.Body
+			lastMessage.Readed = false
 
-		resA, _ := json.Marshal(m)
-		log.Println(string(resA))
-		fmt.Fprint(w, string(resA))
+			resA, _ := json.Marshal(m)
+			log.Println(string(resA))
+			fmt.Fprint(w, string(resA))
+		} else {
+			w.WriteHeader(400)
+			fmt.Fprint(w, "No session")
+		}
 	}
 }
 
@@ -91,25 +129,40 @@ func displayMessages(w http.ResponseWriter, r *http.Request) {
 		decoder := json.NewDecoder(r.Body)
 		var u user
 		decoder.Decode(&u)
-
-		if u.Name == lastMessage.Name {
-			w.WriteHeader(204)
-		} else if lastMessage.Readed == true {
-			w.WriteHeader(204)
+		
+		if checkSession(r) {
+			if u.Name == lastMessage.Name {
+				w.WriteHeader(204)
+			} else if lastMessage.Readed == true {
+				w.WriteHeader(204)
+			} else {
+				lastMessage.Readed = true
+				resA, _ := json.Marshal(lastMessage)
+				log.Println(string(resA))
+				fmt.Fprint(w, string(resA))
+			}
 		} else {
-			lastMessage.Readed = true
-			resA, _ := json.Marshal(lastMessage)
-			log.Println(string(resA))
-			fmt.Fprint(w, string(resA))
+			w.WriteHeader(400)
+			fmt.Fprint(w, "No session")		
 		}
 	}
 }
 
+//Provisional data
+func Initialize() {
+	user1.Name = "mario"
+	user1.Password = "1234"
+
+	user2.Name = "luigi"
+	user2.Password = "1234"
+}
+
 func main() {
+	Initialize()
 	http.Handle("/resources/", http.StripPrefix("/resources/", http.FileServer(http.Dir("resources"))))
+	http.HandleFunc("/index", renderIndex)
 	http.HandleFunc("/", renderLogin)
-	http.HandleFunc("/index", render)
-	http.HandleFunc("/messages", messagesSelecter)
+	http.HandleFunc("/messages", saveMessage)
 	http.HandleFunc("/getMessages", displayMessages)
 	http.HandleFunc("/login", loginUser)
 	http.ListenAndServeTLS(":8080", "cert.pem", "key.pem", context.ClearHandler(http.DefaultServeMux))

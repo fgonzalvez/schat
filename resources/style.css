@@ -1,17 +1,52 @@
 #chat-box {
 	width: 95%;
-	padding: 20px 20px 20px 25px;
+	margin: 0 auto;
 	height: 500px;
+	border: 1px;
+	border-style: solid;
+	border-width: 2px;
+	border-color: #eee;
 	box-shadow: -1px 0px 4px rgba(50, 50, 50, 0.35);
 	overflow: auto;
 }
 
 .user-name {
 	font-weight: bold;
-	color: red;
-}
-
-.user-message {
+	color: #ac76ff;
 	margin-left: 10px;
 }
 
+.user-message {
+	margin-left: 20px;
+}
+
+body {
+	background-color: #1C1F25;
+	color: #eee;
+	font-family: 'Open Sans',sans-serif;
+	font-weight: 400;
+	font-size: 14px;
+}
+
+span {
+	font-weight: 400;
+	font-size: 20px;
+	color: #eee;	
+}
+
+#message-area {
+	border-radius: 5px;
+	margin: 8px 10px 0px 32px;
+	position: relative;
+	float: left;
+}
+
+#send-button {
+	height: 62px;
+	width: 100px;
+	border: none;
+	background: #00b5e6;
+	position: relative;
+	float: left;
+	margin: 9px 0px 0px 1px;
+}
